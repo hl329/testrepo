@@ -62,9 +62,9 @@ def get_pie_chart(entered_site):
         title='Pie Chart for Success Rate')
         return fig
     else:
-        filtered_df = filtered_df[spacex_df['Launch Site'] == entered_site]
-        fig=px.pie(filtered_df,values='class',
-        names='Launch Site',
+        filtered_df = spacex_df[spacex_df['Launch Site'] == entered_site].groupby(['Launch Site', 'class']).size().reset_index(name='class count')
+        fig=px.pie(filtered_df,values='class count',
+        names='class',
         title='Pie chart for Success Rate')
         return fig
 
@@ -74,10 +74,11 @@ def get_pie_chart(entered_site):
               [Input(component_id='payload-slider', component_property='value'),
                Input(component_id='site-dropdown', component_property='value')])
 
-def get_scatterplot(entered_site,slider_range):
-    low,high = slider_range
-    masks = (spacex_df['Payload Mass (kg)'] > low) & (spacex_df['Payload Mass (kg)'] < high) 
-    filtered_df = spacex_df[masks]
+get_scatterplot(entered_site,slider_range):
+    masks = (
+        (spacex_df['Payload Mass (kg)'] >= slider_range[0]) & (spacex_df['Payload Mass (kg)'] <= slider_range[1])
+        )
+    filtered_df = spacex_df.loc[masks,:]
     if entered_site == 'ALL':
         plot = px.scatter(filtered_df, x='Payload Mass (kg)',y='class', color='Booster Version Category')  
         return plot 
